@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,36 +26,71 @@ import java.util.ArrayList;
  */
 public class ForecastFragment extends Fragment {
 
-        public ForecastFragment() {
+     public ForecastFragment() {
+     }
+
+    //override on create here is where fragement gets created
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Add this line in order for this fragment to handle menu events.
+        setHasOptionsMenu(true);
+    }
+
+    //onCreateView is where UI gets initialized
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        ArrayList<String> fakeData = new ArrayList<>();
+        fakeData.add("Today - Sunny - 88/63");
+        fakeData.add("Tomorrow - Sunny - 88/63");
+        fakeData.add("Weds - Windy - 88/63");
+        fakeData.add("Thurs - Sunny - 88/63");
+        fakeData.add("Friday - Cold - 88/63");
+        fakeData.add("Saturday - Sunny - 88/63");
+        fakeData.add("Sunday - Rainy - 88/63");
+
+        ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<>(getActivity(),
+                R.layout.list_item_forecast,
+                R.id.list_item_forecast_textview,
+                fakeData);
+        ListView listView = (ListView ) rootView.findViewById(R.id.listview_forecast);
+        listView.setAdapter(mForecastAdapter);
+
+        return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        //   Add your menu entries here
+        inflater.inflate(R.menu.forecastfragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_refresh) {
+            FetchWeatherTask weatherTask = new FetchWeatherTask();
+            weatherTask.execute();
+            return true;
         }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        return super.onOptionsItemSelected(item);
+    }
 
-            ArrayList<String> fakeData = new ArrayList<>();
-            fakeData.add("Today - Sunny - 88/63");
-            fakeData.add("Tomorrow - Sunny - 88/63");
-            fakeData.add("Weds - Windy - 88/63");
-            fakeData.add("Thurs - Sunny - 88/63");
-            fakeData.add("Friday - Cold - 88/63");
-            fakeData.add("Saturday - Sunny - 88/63");
-            fakeData.add("Sunday - Rainy - 88/63");
+    private class FetchWeatherTask extends AsyncTask<Void, Void, Void>{
 
-            ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<>(getActivity(),
-                    R.layout.list_item_forecast,
-                    R.id.list_item_forecast_textview,
-                    fakeData);
-            ListView listView = (ListView ) rootView.findViewById(R.id.listview_forecast);
-            listView.setAdapter(mForecastAdapter);
+            private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-            return rootView;
-        }
-        private class FetchWeatherTask extends AsyncTask<String, Void, String>{
-
-            @Override
-            protected String doInBackground(String[] String ) {
+            protected Void doInBackground(Void...params ) {
                 // These two need to be declared outside the try/catch
                 // so that they can be closed in the finally block.
                 HttpURLConnection urlConnection = null;
@@ -77,7 +115,7 @@ public class ForecastFragment extends Fragment {
                     StringBuffer buffer = new StringBuffer();
                     if (inputStream == null) {
                         // Nothing to do.
-                        forecastJsonStr = null;
+                        return   null;
                     }
                     reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -91,14 +129,14 @@ public class ForecastFragment extends Fragment {
 
                     if (buffer.length() == 0) {
                         // Stream was empty.  No point in parsing.
-                        forecastJsonStr = null;
+                        return null;
                     }
                     forecastJsonStr = buffer.toString();
                 } catch (IOException e) {
                     Log.e("PlaceholderFragment", "Error ", e);
                     // If the code didn't successfully get the weather data, there's no point in attempting
                     // to parse it.
-                    forecastJsonStr = null;
+                    return   null;
                 } finally{
                     if (urlConnection != null) {
                         urlConnection.disconnect();
@@ -111,7 +149,7 @@ public class ForecastFragment extends Fragment {
                         }
                     }
                 }
-                return forecastJsonStr;
+                return null;
             }
         }
 }
