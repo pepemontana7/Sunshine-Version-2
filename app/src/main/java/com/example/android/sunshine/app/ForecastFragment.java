@@ -33,7 +33,9 @@ import java.util.ArrayList;
  */
 public class ForecastFragment extends Fragment {
      private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
-     public ForecastFragment() {
+     private ArrayAdapter<String>   mForecastAdapter;
+
+    public ForecastFragment() {
      }
 
     //override on create here is where fragement gets created
@@ -59,7 +61,7 @@ public class ForecastFragment extends Fragment {
         fakeData.add("Saturday - Sunny - 88/63");
         fakeData.add("Sunday - Rainy - 88/63");
 
-        ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<>(getActivity(),
+        mForecastAdapter = new ArrayAdapter<>(getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
                 fakeData);
@@ -184,14 +186,12 @@ public class ForecastFragment extends Fragment {
         }
 
         for (String s : resultStrs) {
-            Log.v(LOG_TAG, "Forecast entry: " + s);
+            //Log.v(LOG_TAG, "Forecast entry: " + s);
         }
         return resultStrs;
 
     }
-    private class FetchWeatherTask extends AsyncTask<String, Void, String[]>{
-
-
+    public class FetchWeatherTask extends AsyncTask<String, Void, String[]>{
 
             protected String[] doInBackground(String... params ) {
                 // These two need to be declared outside the try/catch
@@ -229,7 +229,7 @@ public class ForecastFragment extends Fragment {
                             .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY )
                             .build();
                     URL url = new URL(builtUrl.toString());
-                    Log.v(LOG_TAG,"URL Builder url: " + url);
+                    //Log.v(LOG_TAG,"URL Builder url: " + url);
 
                     // Create the request to OpenWeatherMap, and open the connection
                     urlConnection = (HttpURLConnection) url.openConnection();
@@ -258,7 +258,7 @@ public class ForecastFragment extends Fragment {
                         return null;
                     }
                     forecastJsonStr = buffer.toString();
-                    Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
+                    //Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Error ", e);
                     // If the code didn't successfully get the weather data, there's no point in attempting
@@ -278,7 +278,7 @@ public class ForecastFragment extends Fragment {
                 }
                 try {
                     String[] weatherStrings =  getWeatherDataFromJson(forecastJsonStr, numDays);
-                    Log.v(LOG_TAG, "weather string: " + weatherStrings[0]);
+                    //Log.v(LOG_TAG, "weather string: " + weatherStrings[0]);
                     return weatherStrings;
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, "exception creating array of stirngs from Json response", e);
@@ -286,6 +286,18 @@ public class ForecastFragment extends Fragment {
 
                 return new String[0];
             }
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+            if(strings != null){
+                mForecastAdapter.clear();
+                for(String dayForecastStr : strings){
+                    mForecastAdapter.add(dayForecastStr);
+                }
+                //mForecastAdapter.notifyDataSetChanged();
+            }
+
         }
+    }
 }
 
