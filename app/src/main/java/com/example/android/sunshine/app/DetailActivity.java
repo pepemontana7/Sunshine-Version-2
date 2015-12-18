@@ -1,25 +1,41 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
+    private final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.ic_launcher);
         setContentView(R.layout.activity_detail);
+        setTitle("Details");
+
+
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
+
                     .commit();
         }
+
+
+
+
+
     }
 
 
@@ -57,7 +73,14 @@ public class DetailActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
+            String weather = getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT);
+            Log.v("PlaceholderFragment", "weather: " + weather);
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+            TextView textView = (TextView)rootView.findViewById(R.id.weatherText);
+            textView.setText(weather);
+
+
+
             return rootView;
         }
     }

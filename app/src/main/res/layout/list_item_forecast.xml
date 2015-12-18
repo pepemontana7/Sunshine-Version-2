@@ -5,6 +5,6 @@
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:id="@+id/list_item_forecast_textview"
-    android:text="Today --Sunny --88/63">
+     >
 
 </TextView>
