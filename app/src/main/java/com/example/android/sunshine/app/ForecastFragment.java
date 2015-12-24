@@ -57,13 +57,13 @@ public class ForecastFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         ArrayList<String> fakeData = new ArrayList<>();
-        fakeData.add("Today - Sunny - 88/63");
-        fakeData.add("Tomorrow - Sunny - 88/63");
-        fakeData.add("Weds - Windy - 88/63");
-        fakeData.add("Thurs - Sunny - 88/63");
-        fakeData.add("Friday - Cold - 88/63");
-        fakeData.add("Saturday - Sunny - 88/63");
-        fakeData.add("Sunday - Rainy - 88/63");
+        //fakeData.add("Today - Sunny - 88/63");
+        //fakeData.add("Tomorrow - Sunny - 88/63");
+        //fakeData.add("Weds - Windy - 88/63");
+        //fakeData.add("Thurs - Sunny - 88/63");
+        //fakeData.add("Friday - Cold - 88/63");
+        //fakeData.add("Saturday - Sunny - 88/63");
+        //fakeData.add("Sunday - Rainy - 88/63");
 
         mForecastAdapter = new ArrayAdapter<>(getActivity(),
                 R.layout.list_item_forecast,
@@ -123,6 +123,17 @@ public class ForecastFragment extends Fragment {
      */
     private String formatHighLows(double high, double low) {
         // For presentation, assume the user doesn't care about tenths of a degree.
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String unitType = sharedPrefs.getString(getString(R.string.pref_temperture_units_key),
+                getString(R.string.pref_temperture_units_default));
+
+        if (unitType.equals(getString(R.string.pref_temperture_units_imperial))) {
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        } else if (!unitType.equals(getString(R.string.pref_temperture_units_metric))){
+            Log.d(LOG_TAG,"units type not found: "+ unitType);
+        }
+
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
@@ -192,6 +203,8 @@ public class ForecastFragment extends Fragment {
             // Temperatures are in a child object called "temp".  Try not to name variables
             // "temp" when working with temperature.  It confuses everybody.
             JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
+
+
             double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
 
@@ -212,6 +225,7 @@ public class ForecastFragment extends Fragment {
                 getString(R.string.pref_location_default));
         weatherTask.execute(postalCode);
     }
+
 
     @Override
     public void onStart(){
