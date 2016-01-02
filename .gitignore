@@ -27,7 +27,9 @@ ant.properties
 local.properties
 project.properties
 gradle.properties
+
 # Eclipse project files
+/gradle.properties
 .classpath
 .project
 
