@@ -10,6 +10,7 @@
 
 # Java class files
 *.class
+/gradle.properties
 
 # generated files
 bin/
