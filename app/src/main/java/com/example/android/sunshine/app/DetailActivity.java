@@ -16,6 +16,11 @@
 
 package com.example.android.sunshine.app;
 
+import android.database.Cursor;
+import android.net.Uri;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,6 +35,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.example.android.sunshine.app.data.WeatherContract;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -71,10 +78,10 @@ public class DetailActivity extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class DetailFragment extends Fragment {
+    public static class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
-
+        private static final int DETAIL_LOADER_ID = 0;
         private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
         private String mForecastStr;
 
@@ -90,8 +97,11 @@ public class DetailActivity extends ActionBarActivity {
 
             // The detail Activity called via intent.  Inspect the intent for forecast data.
             Intent intent = getActivity().getIntent();
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (intent != null) {
+                mForecastStr = intent.getDataString();
+            }
+            if (mForecastStr != null )  {
+
                 ((TextView) rootView.findViewById(R.id.detail_text))
                         .setText(mForecastStr);
             }
@@ -127,6 +137,42 @@ public class DetailActivity extends ActionBarActivity {
             shareIntent.putExtra(Intent.EXTRA_TEXT,
                     mForecastStr + FORECAST_SHARE_HASHTAG);
             return shareIntent;
+        }
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+
+
+            getLoaderManager().initLoader(DETAIL_LOADER_ID, null, this);
+
+            super.onActivityCreated(savedInstanceState);
+        }
+        @Override
+        public Loader onCreateLoader(int id, Bundle args) {
+            String locationSetting = Utility.getPreferredLocation(getActivity());
+            //String[] projections = {WeatherContract.WeatherEntry.};
+            Uri detailUri =  Uri.parse(mForecastStr);
+            Log.v(LOG_TAG, "URI: " + detailUri.toString());
+            return new CursorLoader(getActivity(),
+                    detailUri,
+                    null,null,null,null );
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            //mForecastStr = data.getString();
+            data.moveToFirst();
+            Integer a = data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATE);
+            mForecastStr = data.getString(5);
+
+            Log.v(LOG_TAG, mForecastStr);
+            ((TextView)  getView().findViewById(R.id.detail_text)).setText("tet");
+        }
+
+
+
+        @Override
+        public void onLoaderReset(Loader loader) {
+            mForecastStr = null;
         }
     }
 }

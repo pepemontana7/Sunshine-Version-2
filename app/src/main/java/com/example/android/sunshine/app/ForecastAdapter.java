@@ -41,7 +41,7 @@ public class ForecastAdapter extends CursorAdapter {
                 cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP),
                 cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP));
 
-        return Utility.formatDate(ForecastFragment.COL_WEATHER_DATE) +
+        return Utility.formatDate(cursor.getLong(ForecastFragment.COL_WEATHER_DATE)) +
                 " - " + cursor.getString(ForecastFragment.COL_WEATHER_DESC) +
                 " - " + highAndLow;
 
