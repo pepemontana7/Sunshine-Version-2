@@ -49,7 +49,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-    private ArrayAdapter<String> mForecastAdapter;
+
     private final Context mContext;
 
     public FetchWeatherTask(Context context ) {
@@ -103,6 +103,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
             // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
             locationRowId = ContentUris.parseId(locationInsertUri);
         }
+        locationCursor.close();
         return  locationRowId;
     }
 
@@ -325,15 +326,19 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                 return null;
             }
             forecastJsonStr = buffer.toString();
+            getWeatherDataFromJson(forecastJsonStr, locationQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
-            return null;
-        } finally {
+
+        } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+         }  finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
-            }
+         }
             if (reader != null) {
                 try {
                     reader.close();
